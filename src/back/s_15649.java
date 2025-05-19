@@ -20,12 +20,12 @@ public class s_15649 {
         r = Integer.parseInt(st.nextToken());
 
         visit = new boolean[n];
-        permutation(0);
+        permutation();
         bw.flush();
     }
 
-    public static void permutation(int depth) throws IOException {
-        if (r == depth) {
+    public static void permutation() throws IOException {
+        if (r == array.size()) {
             print();
             return;
         }
@@ -35,7 +35,7 @@ public class s_15649 {
 
             visit[i] = true;
             array.add(i + 1);
-            permutation(depth + 1);
+            permutation();
             array.remove(array.size() - 1);
             visit[i] = false;
         }
