@@ -4,6 +4,8 @@ import java.util.*;
 
 /**
  * 프로그래머스 최고의 집합
+ *
+ * 2026 07 24
  */
 public class Solution {
     public int[] solution(int n, int s) {
