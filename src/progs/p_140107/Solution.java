@@ -12,7 +12,6 @@ public class Solution {
         for (double i = 0; i <= d; i += k) {
             long maxY = (long) Math.sqrt(d * d - i * i);
 
-            long value = maxY / k + 1;
             count += maxY / k + 1;
         }
 
