@@ -2,112 +2,73 @@ package progs.p_42892;
 
 import java.util.*;
 
-/**
- * 프로그래머스 길 찾기 게임
- */
-
 public class Solution {
-    int[][] answer;
-    int preOrderIndex = 0;
-    int inOrderIndex = 0;
-    int root = 0;
-    List<List<Node>> graph;
-
     static class Node {
-        int number;
-        int x;
-        int y;
+        int number, x, y;
+        Node left, right;
 
-        public Node(int number, int x, int y) {
-            this.number = number;
+        Node(int number, int x, int y) {
+            this.number = number + 1;
             this.x = x;
             this.y = y;
         }
     }
 
+    Node root;
+    int[][] result;
+    int preOrderIndex = 0;
+    int inOrderIndex = 0;
+
     public int[][] solution(int[][] nodeInfo) {
-        answer = new int[2][nodeInfo.length];
+        createNode(nodeInfo);
+        result = new int[2][nodeInfo.length];
 
-        createGraph(nodeInfo);
-        preOrder(graph.get(root).get(0));
+        preOrder(root);
+        inOrder(root);
 
-        return answer;
+        return result;
     }
 
-    private void createGraph(int[][] nodeInfo) {
-        graph = new ArrayList<>();
-        for (int i = 0; i < nodeInfo.length; i++) graph.add(new ArrayList<>());
+    private void createNode(int[][] nodeInfo) {
+        List<Node> nodeList = new ArrayList<>();
 
         for (int i = 0; i < nodeInfo.length; i++) {
-            int[] node = nodeInfo[i];
-            int x = node[0];
-            int y = node[1];
+            nodeList.add(new Node(i, nodeInfo[i][0], nodeInfo[i][1]));
+        }
 
-            List<Node> yList = graph.get(y);
+        nodeList.sort((a, b) -> b.y - a.y);
+        root = nodeList.get(0);
 
-            yList.add(new Node(i, x, y));
-            root = Math.max(root, y);
+        for (int i = 1; i < nodeInfo.length; i++) {
+            insert(root, nodeList.get(i));
         }
     }
 
-    public void preOrder(Node parent) {
+    private void insert(Node parent, Node node) {
+        if (parent.x < node.x) {
+            if (parent.right == null) parent.right = node;
+            else insert(parent.right, node);
+        } else {
+            if (parent.left == null) parent.left = node;
+            else insert(parent.left, node);
+        }
+    }
+
+    private void preOrder(Node parent) {
         if (parent == null) return;
 
-        Node[] childs = getChild(parent);
+        result[0][preOrderIndex++] = parent.number;
 
-        if (childs[0] != null) {
-            preOrder(childs[0]);
-            answer[0][preOrderIndex++] = childs[0].number;
-        }
-
-        if (childs[1] != null) {
-            preOrder(childs[1]);
-            answer[0][preOrderIndex++] = childs[1].number;
-        }
-
-        answer[0][preOrderIndex++] = parent.number;
+        if (parent.left != null) preOrder(parent.left);
+        if (parent.right != null) preOrder(parent.right);
     }
 
-    private Node[] getChild(Node parent) {
+    private void inOrder(Node parent) {
+        if (parent == null) return;
 
-        Node first = null;
-        Node second = null;
+        if (parent.left != null) inOrder(parent.left);
+        if (parent.right != null) inOrder(parent.right);
 
-        int nextY = parent.y - 1;
-        for (; nextY >= 0; nextY--) {
-            if (!graph.get(nextY).isEmpty()) break;
-        }
-
-        if (nextY <= 0) return new Node[2];
-
-        for (Node childNode : graph.get(nextY)) {
-            if (childNode.x > parent.x) {
-                if (first == null) {
-                    first = childNode;
-                    continue;
-                }
-
-                int firstGap = first.x - parent.x;
-                int childGap = childNode.x - parent.x;
-
-                if (childGap < firstGap) {
-                    first = childNode;
-                }
-            } else {
-                if (second == null) {
-                    second = childNode;
-                    continue;
-                }
-
-                int secondGap = parent.x - second.x;
-                int childGap = parent.x - childNode.x;
-
-                if (childGap < secondGap) {
-                    second = childNode;
-                }
-            }
-        }
-
-        return new Node[]{first, second};
+        result[1][inOrderIndex++] = parent.number;
     }
 }
