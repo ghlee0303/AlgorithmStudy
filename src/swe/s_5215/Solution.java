@@ -3,21 +3,8 @@ package swe.s_5215;
 import java.util.*;
 
 public class Solution {
-    static class Food {
-        int index;
-        int score;
-        int value;
-
-        Food(int index, int score, int value) {
-            this.index = index;
-            this.score = score;
-            this.value = value;
-        }
-    }
-
-    static List<Food> foodList = new ArrayList<>();
-    static List<Food> resultList = new ArrayList<>();
-    static int maxSize, maxValue;
+    static int maxSize, maxCal;
+    static int[] scoreArray, calArray;
 
     public static void main(String args[]) throws Exception {
         Scanner sc = new Scanner(System.in);
@@ -26,63 +13,44 @@ public class Solution {
 
         for (int tc = 1; tc <= T; tc++) {
             maxSize = sc.nextInt();
-            maxValue = sc.nextInt();
+            maxCal = sc.nextInt();
+
+            scoreArray = new int[maxSize];
+            calArray = new int[maxSize];
 
             for (int i = 0; i < maxSize; i++) {
                 int score = sc.nextInt();
                 int cal = sc.nextInt();
 
-                foodList.add(new Food(i, score, cal));
+                scoreArray[i] = score;
+                calArray[i] = cal;
             }
 
-            int value = dfs(0);
+            int max = 0;
+            for (int i = 0; i < maxSize; i++) {
+                max = Math.max(dfs(i, 0, 0), max);
+            }
 
-            System.out.println("#" + tc + " " + value);
+            System.out.println("#" + tc + " " + max);
         }
     }
 
-    private static int dfs(int index) {
-        int sumValue = sumValue();
-        int sumScore = sumScore();
+    private static int dfs(int index, int scoreSum, int calSum) {
+        if (index >= maxSize) return scoreSum;
 
-        if (index >= maxSize || index < 0) return sumScore;
-        if (sumValue > maxValue) return sumScore - resultList.remove(index - 1).score;
+        int score = scoreArray[index];
+        int cal = calArray[index];
 
-        int maxValue = 0;
-        for (Food food : foodList) {
-            if (contains(food)) continue;
+        if (calSum + cal > maxCal) return scoreSum;
 
-            resultList.add(food);
-            maxValue = Math.max(maxValue, dfs(index + 1));
-            resultList.remove(food);
+        scoreSum += score;
+        calSum += cal;
+
+        int scoreMax = scoreSum;
+        for (int i = index + 1; i < maxSize; i++) {
+            scoreMax = Math.max(scoreMax, dfs(i, scoreSum, calSum));
         }
 
-        return maxValue;
-    }
-
-    private static int sumValue() {
-        int sum = 0;
-        for (Food food : resultList) {
-            sum += food.value;
-        }
-
-        return sum;
-    }
-
-    private static int sumScore() {
-        int sum = 0;
-        for (Food food : resultList) {
-            sum += food.score;
-        }
-
-        return sum;
-    }
-
-    private static boolean contains(Food other) {
-        for (Food food : resultList) {
-            if (food.equals(other)) return true;
-        }
-
-        return false;
+        return scoreMax;
     }
 }
